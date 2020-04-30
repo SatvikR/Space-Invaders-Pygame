@@ -8,7 +8,9 @@ fps = 60
 fpsClock = pygame.time.Clock()
 width, height = 800, 800
 screen = pygame.display.set_mode((width, height))
+logo = pygame.image.load('./images/graphics-space-invaders-logo.jpg')
 pygame.display.set_caption("Space Invaders")
+pygame.display.set_icon(logo)
 ship = pygame.image.load('./images/ship.png')
 laser = pygame.image.load('./images/green_laser.png')
 invader_laser = pygame.image.load('./images/red_laser.png')
@@ -26,6 +28,7 @@ invader_kill = pygame.mixer.Sound('./sounds/invaderkilled.wav')
 player_kill = pygame.mixer.Sound('./sounds/explosion.wav')
 pygame.mixer.music.load('./sounds/spaceinvaders1.mpeg')
 pygame.mixer.music.play(-1)
+level = 1
 
 
 class Player():
@@ -292,7 +295,7 @@ def win(level):
                     game_loop()
 
         win = win_font.render("You Win!!!", True, (0, 255, 0))
-        prompt = title_font.render("Begin level " + str(level) + "...", True, (0, 255, 0))
+        prompt = title_font.render("Press space to begin level " + str(level) + "...", True, (0, 255, 0))
         screen.blit(prompt, (400 - prompt.get_width() / 2, 400 - prompt.get_height()))
         screen.blit(win, (400 - prompt.get_width() / 2, 200))
         pygame.display.flip()
@@ -340,6 +343,7 @@ def death():
 
 
 def game_loop():
+    global level
     player = Player(width / 2 - ship.get_width() / 2, height - ship.get_height())
     bullets = []
     invader_bullets = []
@@ -349,7 +353,7 @@ def game_loop():
     shields = create_shields()
     count = 0
     velocity = 0.5
-    level = 1
+
     create_invaders(ten_invaders, twenty_invaders, thirty_invaders)
     while True:
         for event in pygame.event.get():
