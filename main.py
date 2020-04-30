@@ -323,6 +323,8 @@ def how_to_play():
 
 
 def death():
+    global level
+    level = 0
     screen.fill((0, 0, 0))
     while True:
         for event in pygame.event.get():
@@ -417,7 +419,6 @@ def game_loop():
             win(level)
         pygame.display.flip()
         fpsClock.tick(fps)
-
 
 
 def main():
