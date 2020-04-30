@@ -319,6 +319,25 @@ def how_to_play():
         fpsClock.tick(fps)
 
 
+def death():
+    screen.fill((0, 0, 0))
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    level += 1
+                    game_loop()
+
+        win = win_font.render("You Died!", True, (0, 255, 0))
+        prompt = title_font.render("Press space to try again...", True, (0, 255, 0))
+        screen.blit(prompt, (400 - prompt.get_width() / 2, 400 - prompt.get_height()))
+        screen.blit(win, (400 - win.get_width() / 2, 200))
+        pygame.display.flip()
+        fpsClock.tick(fps)
+
 
 def game_loop():
     player = Player(width / 2 - ship.get_width() / 2, height - ship.get_height())
@@ -387,7 +406,7 @@ def game_loop():
             velocity = velocity * -1
 
         if player.lives == 0:
-            home()
+            death()
 
         if check_win(ten_invaders, twenty_invaders, thirty_invaders):
             level += 1
