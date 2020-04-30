@@ -53,8 +53,6 @@ class Bullet():
 
 
 class Invader():
-    velocity = 2
-
     def __init__(self, x, y, img, level):
         self.x = x
         self.y = y
@@ -118,29 +116,66 @@ def create_shields():
     return shield_list
 
 
-def collision_check(bullet_list, shields):
+def collision_check_shields(bullet_list, shields):
     for bullet in bullet_list:
         x = int(bullet.x + (laser.get_width() / 2))
-        y = int(bullet.y + 1)
+        y = int(bullet.y - 1)
         if screen.get_at((x, y))[:3] == (28, 255, 28):
             if y > 600:
                 bullet_list.remove(bullet)
                 update_shield(x, shields) 
 
 
-def create_invaders(tens):
+def create_invaders(tens, twenties, thirties):
+    y_space = 10
+    x_space = (700 - invader3.get_width() * 11) / 10
+    for i in range(11):
+        x = int(25 + x_space * i + invader3.get_width() * i)
+        y = 75
+        thirties.append(Invader(x, y, invader3, 3))
+
+    for i in range(2):
+        for j in range(11):
+            x_space = (700 - invader2.get_width() * 11) / 10
+            y_space = 10
+            x = int(25 + x_space * j + invader2.get_width() * j)
+            y = int(116 + y_space * i + invader2.get_height() * i)
+            twenties.append(Invader(x, y, invader2, 2))
+
     for i in range(2):
         for j in range(11):
             x_space = (700 - invader1.get_width() * 11) / 10
-            y_space = 7
-            x = int(50 + x_space * j + invader1.get_width() * j)
-            y = int(75 + y_space * i + invader1.get_height() * i)
+            y_space = 10
+            x = int(25 + x_space * j + invader1.get_width() * j)
+            y = int(188 + y_space * i + invader1.get_height() * i)
             tens.append(Invader(x, y, invader1, 1))
+
+
+def udpate_invaders(x, y, invader_list, player):
+    for j in range(len(invader_list)):
+        invader = invader_list[j]
+        if invader.x <= x <= (invader.x + invader.img.get_width()):
+            if invader.y <= y <= (invader.y + invader.img.get_height()):
+                invader_list.remove(invader)
+                player.score += invader.value
+                return
+
+def collision_check_invaders(bullet_list, invaders, player):
+    for bullet in bullet_list:
+        x = int(bullet.x + (laser.get_width() / 2))
+        y = int(bullet.y + 1)
+        if screen.get_at((x, y))[:3] == (255, 255, 255):
+            bullet_list.remove(bullet)
+            udpate_invaders(x, y, invaders, player)
 
 
 def draw_invaders(tens):
     for invader in tens:
         invader.draw()
+
+def move_invaders(invaders, v):
+    for invader in invaders:
+        invader.x += v
 
 
 def game_loop():
@@ -150,7 +185,9 @@ def game_loop():
     twenty_invaders = []
     thirty_invaders = []
     shields = create_shields()
-    create_invaders(ten_invaders)
+    count = 0
+    velocity = 0.5
+    create_invaders(ten_invaders, twenty_invaders, thirty_invaders)
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -175,13 +212,34 @@ def game_loop():
 
         player.draw()
         draw_sheilds(shields)
-        collision_check(bullets, shields)
+        collision_check_shields(bullets, shields)
+
         draw_bullets(bullets)
 
+        move_invaders(ten_invaders, velocity)
         draw_invaders(ten_invaders)
+        collision_check_invaders(bullets, ten_invaders, player)
 
+        move_invaders(twenty_invaders, velocity)
+        draw_invaders(twenty_invaders)
+        collision_check_invaders(bullets, twenty_invaders, player)
+
+        move_invaders(thirty_invaders, velocity)
+        draw_invaders(thirty_invaders)
+        collision_check_invaders(bullets, thirty_invaders, player)
+
+        count += 1
+        if count == 100:
+            count = 0
+            velocity = velocity * -1
+            
+        pos = pygame.mouse.get_pos()
+        color = pos
+        test = score_font.render(str(color), True, (0, 255, 0))
+        screen.blit(test, (350, 15))
         pygame.display.flip()
         fpsClock.tick(fps)
+
 
 
 def main():
