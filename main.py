@@ -9,22 +9,22 @@ fpsClock = pygame.time.Clock()
 width, height = 800, 800
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Space Invaders")
-ship = pygame.image.load('ship.png')
-laser = pygame.image.load('green_laser.png')
-invader_laser = pygame.image.load('red_laser.png')
+ship = pygame.image.load('./images/ship.png')
+laser = pygame.image.load('./images/green_laser.png')
+invader_laser = pygame.image.load('./images/red_laser.png')
 score_font = pygame.font.SysFont('Consolas', 20, True)
 title_font = pygame.font.SysFont('Consolas', 40, True)
 win_font = pygame.font.SysFont('Consolas', 60, True)
-shield_img = pygame.image.load('shield.png')
-invader1 = pygame.image.load('invader1.png')
-invader2 = pygame.image.load('invader2.png')
-invader3 = pygame.image.load('invader3.png')
-invader_dead = pygame.image.load('invaderkilled.gif')
-dead_player = pygame.image.load('explosion.gif')
-shoot = pygame.mixer.Sound('shoot.wav')
-invader_kill = pygame.mixer.Sound('invaderkilled.wav')
-player_kill = pygame.mixer.Sound('explosion.wav')
-pygame.mixer.music.load('spaceinvaders1.mpeg')
+shield_img = pygame.image.load('./images/shield.png')
+invader1 = pygame.image.load('./images/invader1.png')
+invader2 = pygame.image.load('./images/invader2.png')
+invader3 = pygame.image.load('./images/invader3.png')
+invader_dead = pygame.image.load('./images/invaderkilled.gif')
+dead_player = pygame.image.load('./images/explosion.gif')
+shoot = pygame.mixer.Sound('./sounds/shoot.wav')
+invader_kill = pygame.mixer.Sound('./sounds/invaderkilled.wav')
+player_kill = pygame.mixer.Sound('./sounds/explosion.wav')
+pygame.mixer.music.load('./sounds/spaceinvaders1.mpeg')
 pygame.mixer.music.play(-1)
 
 
@@ -310,7 +310,7 @@ def how_to_play():
                 if event.key == pygame.K_SPACE:
                     home()
         title = title_font.render("How to play:", True, (0, 255, 0))
-        prompt = score_font.render("Click to shoot, arrows to move", True, (0, 255, 0))
+        prompt = score_font.render("Click to shoot, A and D to move left to right", True, (0, 255, 0))
         back = score_font.render("Press space to go back to menu", True, (0, 255, 0))
         screen.blit(title, (400 - title.get_width() / 2, 200))
         screen.blit(prompt, (400 - prompt.get_width() / 2, 400))
@@ -343,11 +343,11 @@ def game_loop():
                     bullets.append(Bullet(player.get_width(), player.y - 10, laser))
 
         key = pygame.key.get_pressed()
-        if key[pygame.K_RIGHT]:
+        if key[pygame.K_d]:
             if not player.is_dead:
                 if player.x + ship.get_width() < width:
                     player.x += player.velocity
-        elif key[pygame.K_LEFT]:
+        elif key[pygame.K_a]:
             if not player.is_dead:
                 if player.x > 0:
                     player.x -= player.velocity
