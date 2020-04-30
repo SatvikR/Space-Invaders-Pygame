@@ -1,5 +1,6 @@
 import sys
 import pygame
+import random
 from pygame.locals import *
 
 pygame.init()
@@ -10,7 +11,10 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Space Invaders")
 ship = pygame.image.load('ship.png')
 laser = pygame.image.load('green_laser.png')
+invader_laser = pygame.image.load('red_laser.png')
 score_font = pygame.font.SysFont('Consolas', 20, True)
+title_font = pygame.font.SysFont('Consolas', 40, True)
+win_font = pygame.font.SysFont('Consolas', 60, True)
 shield_img = pygame.image.load('shield.png')
 invader1 = pygame.image.load('invader1.png')
 invader2 = pygame.image.load('invader2.png')
@@ -40,13 +44,14 @@ class Player():
 
 
 class Bullet():
-    def __init__(self, x, y, velocity=-7):
+    def __init__(self, x, y, img, velocity=-7):
         self.x = x
         self.y = y
         self.velocity = velocity
+        self.img = img
 
     def draw(self):
-        screen.blit(laser, (self.x, self.y))
+        screen.blit(self.img, (self.x, self.y))
 
     def update(self):
         self.y += self.velocity
@@ -90,7 +95,7 @@ def update_shield(x, shield_list):
 def draw_bullets(bullet_list):
     for bullet in bullet_list:
         bullet.update()
-        if bullet.y < 0:
+        if bullet.y < 0 or (bullet.y + bullet.img.get_height()) > 798:
             bullet_list.remove(bullet)
         else:
             bullet.draw()
@@ -118,12 +123,31 @@ def create_shields():
 
 def collision_check_shields(bullet_list, shields):
     for bullet in bullet_list:
-        x = int(bullet.x + (laser.get_width() / 2))
+        x = int(bullet.x + (bullet.img.get_width() / 2))
         y = int(bullet.y - 1)
         if screen.get_at((x, y))[:3] == (28, 255, 28):
             if y > 600:
                 bullet_list.remove(bullet)
                 update_shield(x, shields) 
+
+def collision_shields_above(bullet_list, shields):
+    for bullet in bullet_list:
+        x = int(bullet.x + (bullet.img.get_width() / 2))
+        y = int(bullet.y + bullet.img.get_height() + 1)
+        if screen.get_at((x, y))[:3] == (28, 255, 28):
+            if y < 650:
+                bullet_list.remove(bullet)
+                update_shield(x, shields)
+
+
+def collision_player(player, bullet_list):
+    for bullet in bullet_list:
+        x = int(bullet.x + (bullet.img.get_width() / 2))
+        y = int(bullet.y + bullet.img.get_height() + 1)
+        if screen.get_at((x, y))[:3] == (28, 255, 28):
+            if y > 650:
+                bullet_list.remove(bullet)
+                player.lives -= 1
 
 
 def create_invaders(tens, twenties, thirties):
@@ -178,15 +202,72 @@ def move_invaders(invaders, v):
         invader.x += v
 
 
+def spawn_bullets(invaders_1, invaders_2, invaders_3, bullet_list, level):
+    invader_lists = [invaders_1, invaders_2, invaders_3]
+    for invaders in invader_lists:
+        for invader in invaders:
+            chance = random.randint(0, 4000)
+            if chance <= 4 * level:
+                bullet_list.append(Bullet(invader.x, invader.y, invader_laser, velocity = 7))
+
+
+def check_win(tens, twenties, thirties):
+    invader_lists = [tens, twenties, thirties]
+    for invaders in invader_lists:
+        if len(invaders) != 0:
+            return False
+    return True
+
+
+def home():
+    screen.fill((0, 0, 0))
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    game_loop()
+
+
+        prompt = title_font.render("Press space to begin...", True, (0, 255, 0))
+        screen.blit(prompt, (400 - prompt.get_width() / 2, 400 - prompt.get_height()))
+        pygame.display.flip()
+        fpsClock.tick(fps)
+
+
+def win(level):
+    screen.fill((0, 0, 0))
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    level += 1
+                    game_loop()
+
+        win = win_font.render("You Win!!!", True, (0, 255, 0))
+        prompt = title_font.render("Begin level " + str(level) + "...", True, (0, 255, 0))
+        screen.blit(prompt, (400 - prompt.get_width() / 2, 400 - prompt.get_height()))
+        screen.blit(win, (400 - prompt.get_width() / 2, 200))
+        pygame.display.flip()
+        fpsClock.tick(fps)
+
+
 def game_loop():
     player = Player(width / 2 - ship.get_width() / 2, height - ship.get_height())
     bullets = []
+    invader_bullets = []
     ten_invaders = []
     twenty_invaders = []
     thirty_invaders = []
     shields = create_shields()
     count = 0
     velocity = 0.5
+    level = 1
     create_invaders(ten_invaders, twenty_invaders, thirty_invaders)
     while True:
         for event in pygame.event.get():
@@ -195,7 +276,7 @@ def game_loop():
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    bullets.append(Bullet(player.get_width(), player.y - 10))
+                    bullets.append(Bullet(player.get_width(), player.y - 10, laser))
 
         key = pygame.key.get_pressed()
         if key[pygame.K_RIGHT]:
@@ -213,8 +294,12 @@ def game_loop():
         player.draw()
         draw_sheilds(shields)
         collision_check_shields(bullets, shields)
+        collision_shields_above(invader_bullets, shields)
 
+        spawn_bullets(ten_invaders, twenty_invaders, thirty_invaders, invader_bullets, level)
+        draw_bullets(invader_bullets)
         draw_bullets(bullets)
+        collision_player(player, invader_bullets)
 
         move_invaders(ten_invaders, velocity)
         draw_invaders(ten_invaders)
@@ -232,18 +317,20 @@ def game_loop():
         if count == 100:
             count = 0
             velocity = velocity * -1
-            
-        pos = pygame.mouse.get_pos()
-        color = pos
-        test = score_font.render(str(color), True, (0, 255, 0))
-        screen.blit(test, (350, 15))
+        
+        if player.lives == 0:
+            home()
+
+        if check_win(ten_invaders, twenty_invaders, thirty_invaders):
+            level += 1
+            win(level)
         pygame.display.flip()
         fpsClock.tick(fps)
 
 
 
 def main():
-    game_loop()
+    home()
 
 
 if __name__ == '__main__':
