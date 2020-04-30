@@ -29,7 +29,7 @@ pygame.mixer.music.play(-1)
 
 
 class Player():
-    velocity = 3    
+    velocity = 3
 
     def __init__(self, x, y):
         self.x = x
@@ -140,7 +140,7 @@ def collision_check_shields(bullet_list, shields):
         if screen.get_at((x, y))[:3] == (28, 255, 28):
             if y > 600:
                 bullet_list.remove(bullet)
-                update_shield(x, shields) 
+                update_shield(x, shields)
 
 def collision_shields_above(bullet_list, shields):
     for bullet in bullet_list:
@@ -385,7 +385,7 @@ def game_loop():
         if count == 100:
             count = 0
             velocity = velocity * -1
-        
+
         if player.lives == 0:
             home()
 
