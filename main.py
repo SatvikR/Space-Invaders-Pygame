@@ -14,9 +14,9 @@ pygame.display.set_icon(logo)
 ship = pygame.image.load('./images/ship.png')
 laser = pygame.image.load('./images/green_laser.png')
 invader_laser = pygame.image.load('./images/red_laser.png')
-score_font = pygame.font.SysFont('Consolas', 20, True)
-title_font = pygame.font.SysFont('Consolas', 40, True)
-win_font = pygame.font.SysFont('Consolas', 60, True)
+score_font = pygame.font.Font('./fonts/bitfont.ttf', 40)
+title_font = pygame.font.Font('./fonts/bitfont.ttf', 40)
+win_font = pygame.font.Font('./fonts/bitfont.ttf', 60)
 shield_img = pygame.image.load('./images/shield.png')
 invader1 = pygame.image.load('./images/invader1.png')
 invader2 = pygame.image.load('./images/invader2.png')
@@ -51,7 +51,7 @@ class Player():
 
     def draw_lives(self):
         text = score_font.render("Lives:", True, (0, 255, 0))
-        screen.blit(text, (570, 15))
+        screen.blit(text, (570, 7))
         for i in range(self.lives):
             screen.blit(ship, (570 + text.get_width() + i * 55, 0))
 
