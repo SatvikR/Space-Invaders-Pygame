@@ -96,7 +96,7 @@ class Shield():
     def draw_health(self):
         width = shield_img.get_width() * self.health / 21
         r = min(255, 255 - (255 * ((self.health - (21 - self.health)) / 21)))
-        g = min(255, 255 * (self.health / (21 / 2)))
+        g = min(255, 255 * (self.health / (21 / 2))) # I plagerized these two lines don't sue me
         color = (r, g, 0)
         pygame.draw.rect(screen, color, (self.x, self.y - 10, width, 7), 0)
 
@@ -395,7 +395,6 @@ def game_loop():
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         pause = True
-
             key = pygame.key.get_pressed()
             if key[pygame.K_d]:
                 if not player.is_dead:
