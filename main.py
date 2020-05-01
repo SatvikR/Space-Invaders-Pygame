@@ -318,7 +318,7 @@ def how_to_play():
         prompt_3 = score_font.render("to shoot all of them before you loose your lives. Once you kill", True, (0, 255, 0))
         prompt_4 = score_font.render("all the aliens, you will advance to the next level. Each level", True, (0, 255, 0))
         prompt_5 = score_font.render("gets is exponentially harder than the previous. Use your shields to", True, (0, 255, 0))
-        prompt_6 = score_font.render("dodge bullets.", True, (0, 255, 0))
+        prompt_6 = score_font.render("dodge bullets. Press escape to pause.", True, (0, 255, 0))
         back = score_font.render("Press space to go back to menu", True, (0, 255, 0))
         screen.blit(title, (400 - title.get_width() / 2, 200))
         screen.blit(prompt, (400 - prompt.get_width() / 2, 400))
@@ -365,70 +365,89 @@ def game_loop():
     shields = create_shields()
     count = 0
     velocity = 0.5
+    pause = False
 
     create_invaders(ten_invaders, twenty_invaders, thirty_invaders)
     while True:
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+        if pause:
+            screen.fill((0, 0, 0))
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        pause = False
+
+            message = score_font.render("Press space to resume", True, (0, 255, 0))
+            screen.blit(message, (400 - message.get_width() / 2, 400 - message.get_height() / 2))
+            pygame.display.flip()
+            fpsClock.tick(fps)
+        else:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if not player.is_dead:
+                        pygame.mixer.Sound.play(shoot)
+                        bullets.append(Bullet(player.get_width(), player.y - 10, laser))
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pause = True
+
+            key = pygame.key.get_pressed()
+            if key[pygame.K_d]:
                 if not player.is_dead:
-                    pygame.mixer.Sound.play(shoot)
-                    bullets.append(Bullet(player.get_width(), player.y - 10, laser))
+                    if player.x + ship.get_width() < width:
+                        player.x += player.velocity
+            elif key[pygame.K_a]:
+                if not player.is_dead:
+                    if player.x > 0:
+                        player.x -= player.velocity
 
-        key = pygame.key.get_pressed()
-        if key[pygame.K_d]:
-            if not player.is_dead:
-                if player.x + ship.get_width() < width:
-                    player.x += player.velocity
-        elif key[pygame.K_a]:
-            if not player.is_dead:
-                if player.x > 0:
-                    player.x -= player.velocity
+            screen.fill((0, 0, 0))
+            score = score_font.render("Score: " + str(player.score), True, (0, 255, 0))
+            screen.blit(score, (0, 15))
+            player.draw_lives()
 
-        screen.fill((0, 0, 0))
-        score = score_font.render("Score: " + str(player.score), True, (0, 255, 0))
-        screen.blit(score, (0, 15))
-        player.draw_lives()
+            player.draw()
+            update_player(player)
+            draw_sheilds(shields)
+            collision_check_shields(bullets, shields)
+            collision_shields_above(invader_bullets, shields)
 
-        player.draw()
-        update_player(player)
-        draw_sheilds(shields)
-        collision_check_shields(bullets, shields)
-        collision_shields_above(invader_bullets, shields)
+            spawn_bullets(ten_invaders, twenty_invaders, thirty_invaders, invader_bullets, level)
+            draw_bullets(invader_bullets)
+            draw_bullets(bullets)
+            collision_player(player, invader_bullets)
 
-        spawn_bullets(ten_invaders, twenty_invaders, thirty_invaders, invader_bullets, level)
-        draw_bullets(invader_bullets)
-        draw_bullets(bullets)
-        collision_player(player, invader_bullets)
+            move_invaders(ten_invaders, velocity)
+            draw_invaders(ten_invaders)
+            collision_check_invaders(bullets, ten_invaders, player)
 
-        move_invaders(ten_invaders, velocity)
-        draw_invaders(ten_invaders)
-        collision_check_invaders(bullets, ten_invaders, player)
+            move_invaders(twenty_invaders, velocity)
+            draw_invaders(twenty_invaders)
+            collision_check_invaders(bullets, twenty_invaders, player)
 
-        move_invaders(twenty_invaders, velocity)
-        draw_invaders(twenty_invaders)
-        collision_check_invaders(bullets, twenty_invaders, player)
+            move_invaders(thirty_invaders, velocity)
+            draw_invaders(thirty_invaders)
+            collision_check_invaders(bullets, thirty_invaders, player)
+            update_all_invaders(ten_invaders, twenty_invaders, thirty_invaders)
 
-        move_invaders(thirty_invaders, velocity)
-        draw_invaders(thirty_invaders)
-        collision_check_invaders(bullets, thirty_invaders, player)
-        update_all_invaders(ten_invaders, twenty_invaders, thirty_invaders)
+            count += 1
+            if count == 100:
+                count = 0
+                velocity = velocity * -1
 
-        count += 1
-        if count == 100:
-            count = 0
-            velocity = velocity * -1
+            if player.lives == 0:
+                death()
 
-        if player.lives == 0:
-            death()
-
-        if check_win(ten_invaders, twenty_invaders, thirty_invaders):
-            level += 1
-            win(level)
-        pygame.display.flip()
-        fpsClock.tick(fps)
+            if check_win(ten_invaders, twenty_invaders, thirty_invaders):
+                level += 1
+                win(level)
+            pygame.display.flip()
+            fpsClock.tick(fps)
 
 
 def main():
