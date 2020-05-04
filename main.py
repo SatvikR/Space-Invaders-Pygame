@@ -51,9 +51,9 @@ class Player():
 
     def draw_lives(self):
         text = score_font.render("Lives:", True, (0, 255, 0))
-        screen.blit(text, (570, 7))
+        screen.blit(text, (530, 7))
         for i in range(self.lives):
-            screen.blit(ship, (570 + text.get_width() + i * 55, 0))
+            screen.blit(ship, (530 + text.get_width() + i * 55, 0))
 
 
 class Bullet():
