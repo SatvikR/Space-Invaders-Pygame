@@ -35,7 +35,7 @@ level = 1
 class Player():
     velocity = 3
 
-    def __init__(self, x, y):
+    def __init__(self, x: int, y: int):
         self.x = x
         self.y = y
         self.score = 0
@@ -44,13 +44,13 @@ class Player():
         self.time_dead = 0
         self.img = ship
 
-    def get_width(self):
+    def get_width(self) -> int:
         return self.x + (ship.get_width() / 2) - 5
 
-    def draw(self):
+    def draw(self) -> None:
         screen.blit(self.img, (self.x, self.y))
 
-    def draw_lives(self):
+    def draw_lives(self) -> None:
         text = score_font.render("Lives:", True, (0, 255, 0))
         screen.blit(text, (530, 7))
         for i in range(self.lives):
@@ -58,21 +58,21 @@ class Player():
 
 
 class Bullet():
-    def __init__(self, x, y, img, velocity=-7):
+    def __init__(self, x: int, y: int, img: pygame.Surface, velocity=-7):
         self.x = x
         self.y = y
         self.velocity = velocity
         self.img = img
 
-    def draw(self):
+    def draw(self) -> None:
         screen.blit(self.img, (self.x, self.y))
 
-    def update(self):
+    def update(self) -> None:
         self.y += self.velocity
 
 
 class Invader():
-    def __init__(self, x, y, img, level):
+    def __init__(self, x: int, y: int, img: pygame.Surface, level: int):
         self.x = x
         self.y = y
         self.img = img
@@ -81,20 +81,20 @@ class Invader():
         self.is_dead = False
         self.time_dead = 0
 
-    def draw(self):
+    def draw(self) -> None:
         screen.blit(self.img, (self.x, self.y))
 
 
 class Shield():
-    def __init__(self, x, y, health):
+    def __init__(self, x: int, y: int, health: int):
         self.x = x
         self.y = y
         self.health = 21
 
-    def draw(self):
+    def draw(self) -> None:
         screen.blit(shield_img, (self.x, self.y))
 
-    def draw_health(self):
+    def draw_health(self) -> None:
         width = shield_img.get_width() * self.health / 21
         r = min(255, 255 - (255 * ((self.health - (21 - self.health)) / 21)))
         g = min(255, 255 * (self.health / (21 / 2))) # I plagerized these two lines don't sue me
@@ -102,13 +102,13 @@ class Shield():
         pygame.draw.rect(screen, color, (self.x, self.y - 10, width, 7), 0)
 
 
-def update_shield(x, shield_list):
+def update_shield(x: int, shield_list: list) -> None:
     for shield in shield_list:
         if shield.x <= x <= shield.x + shield_img.get_width():
             shield.health -= 1
 
 
-def draw_bullets(bullet_list):
+def draw_bullets(bullet_list: list) -> None:
     for bullet in bullet_list:
         bullet.update()
         if bullet.y < 0 or (bullet.y + bullet.img.get_height()) > 798:
@@ -117,14 +117,14 @@ def draw_bullets(bullet_list):
             bullet.draw()
 
 
-def draw_sheilds(shield_list):
+def draw_sheilds(shield_list: list) -> None:
     for shield in shield_list:
         if shield.health != 0:
             shield.draw()
             shield.draw_health()
 
 
-def create_shields():
+def create_shields() -> list:
     shield_list = []
     h = 600
     for i in range(3):
@@ -137,7 +137,7 @@ def create_shields():
     return shield_list
 
 
-def collision_check_shields(bullet_list, shields):
+def collision_check_shields(bullet_list: list, shields: list) -> None:
     for bullet in bullet_list:
         x = int(bullet.x + (bullet.img.get_width() / 2))
         y = int(bullet.y - 1)
@@ -146,7 +146,7 @@ def collision_check_shields(bullet_list, shields):
                 bullet_list.remove(bullet)
                 update_shield(x, shields)
 
-def collision_shields_above(bullet_list, shields):
+def collision_shields_above(bullet_list: list, shields: list) -> None:
     for bullet in bullet_list:
         x = int(bullet.x + (bullet.img.get_width() / 2))
         y = int(bullet.y + bullet.img.get_height() + 1)
@@ -156,7 +156,7 @@ def collision_shields_above(bullet_list, shields):
                 update_shield(x, shields)
 
 
-def collision_player(player, bullet_list):
+def collision_player(player: Player, bullet_list: list) -> None:
     for bullet in bullet_list:
         x = int(bullet.x + (bullet.img.get_width() / 2))
         y = int(bullet.y + bullet.img.get_height() + 1)
@@ -169,7 +169,7 @@ def collision_player(player, bullet_list):
                 player.lives -= 1
 
 
-def update_player(player):
+def update_player(player: Player) -> None:
     if player.is_dead == True:
         player.time_dead += 1
         if player.time_dead == 60:
@@ -178,7 +178,7 @@ def update_player(player):
             player.is_dead = False
 
 
-def create_invaders(tens, twenties, thirties):
+def create_invaders(tens: list, twenties: list, thirties: list) -> None:
     y_space = 10
     x_space = (700 - invader3.get_width() * 11) / 10
     for i in range(11):
@@ -203,7 +203,7 @@ def create_invaders(tens, twenties, thirties):
             tens.append(Invader(x, y, invader1, 1))
 
 
-def udpate_invaders(x, y, invader_list, player):
+def udpate_invaders(x: int, y: int, invader_list: list, player: Player) -> None:
     for j in range(len(invader_list)):
         invader = invader_list[j]
         if invader.x <= x <= (invader.x + invader.img.get_width()):
@@ -215,7 +215,7 @@ def udpate_invaders(x, y, invader_list, player):
                     player.score += invader.value
                     return
 
-def collision_check_invaders(bullet_list, invaders, player):
+def collision_check_invaders(bullet_list: list, invaders: list, player: Player) -> None:
     for bullet in bullet_list:
         x = int(bullet.x + (laser.get_width() / 2))
         y = int(bullet.y + 1)
@@ -224,16 +224,16 @@ def collision_check_invaders(bullet_list, invaders, player):
             udpate_invaders(x, y, invaders, player)
 
 
-def draw_invaders(tens):
+def draw_invaders(tens: list) -> None:
     for invader in tens:
         invader.draw()
 
-def move_invaders(invaders, v):
+def move_invaders(invaders: list, v: int) -> None:
     for invader in invaders:
         invader.x += v
 
 
-def update_all_invaders(tens, twenties, thirties):
+def update_all_invaders(tens: list, twenties: list, thirties: list) -> None:
     invader_lists = [tens, twenties, thirties]
     for invaders in invader_lists:
         for invader in invaders:
@@ -244,7 +244,7 @@ def update_all_invaders(tens, twenties, thirties):
 
 
 
-def spawn_bullets(invaders_1, invaders_2, invaders_3, bullet_list, level):
+def spawn_bullets(invaders_1: list, invaders_2: list, invaders_3: list, bullet_list: list, level: int) -> None:
     invader_lists = [invaders_1, invaders_2, invaders_3]
     for invaders in invader_lists:
         for invader in invaders:
@@ -253,7 +253,7 @@ def spawn_bullets(invaders_1, invaders_2, invaders_3, bullet_list, level):
                 bullet_list.append(Bullet(invader.x, invader.y, invader_laser, velocity = 7))
 
 
-def check_win(tens, twenties, thirties):
+def check_win(tens: list, twenties: list, thirties: list) -> bool:
     invader_lists = [tens, twenties, thirties]
     for invaders in invader_lists:
         if len(invaders) != 0:
@@ -261,7 +261,7 @@ def check_win(tens, twenties, thirties):
     return True
 
 
-def home():
+def home() -> None:
     screen.fill((0, 0, 0))
     while True:
         for event in pygame.event.get():
@@ -283,7 +283,7 @@ def home():
         fpsClock.tick(fps)
 
 
-def win(level):
+def win(level: int) -> None:
     screen.fill((0, 0, 0))
     while True:
         for event in pygame.event.get():
@@ -303,7 +303,7 @@ def win(level):
         fpsClock.tick(fps)
 
 
-def how_to_play():
+def how_to_play() -> None:
     screen.fill((0, 0, 0))
     while True:
         for event in pygame.event.get():
@@ -333,7 +333,7 @@ def how_to_play():
         fpsClock.tick(fps)
 
 
-def death():
+def death() -> None:
     global level
     level = 0
     screen.fill((0, 0, 0))
@@ -355,9 +355,10 @@ def death():
         fpsClock.tick(fps)
 
 
-def game_loop():
+def game_loop() -> None:
     global level
     player = Player(width / 2 - ship.get_width() / 2, height - ship.get_height())
+    print(type(player))
     bullets = []
     invader_bullets = []
     ten_invaders = []
@@ -450,7 +451,7 @@ def game_loop():
             fpsClock.tick(fps)
 
 
-def main():
+def main() -> None:
     home()
 
 
