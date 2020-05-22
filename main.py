@@ -118,7 +118,7 @@ def draw_bullets(bullet_list):
 
 
 def draw_sheilds(shield_list):
-    for i, shield in enumerate(shield_list):
+    for shield in shield_list:
         if shield.health != 0:
             shield.draw()
             shield.draw_health()
