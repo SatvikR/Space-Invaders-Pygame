@@ -3,7 +3,7 @@
 
 Make sure you have pygame installed and are using with python3.
 
-Run main.py to play.
+Run main.py to play OR double click the game.pwd to play.
 
 If you are getting errors about files not located, make sure you are working directory is Space-Invaders-Pygame
 
